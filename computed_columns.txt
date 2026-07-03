@@ -1,0 +1,34 @@
+alter table add mytruncatedtext 
+  as ( case when len(origcolumn) > 50 
+         then N'[SQL-Truncated] ' + left(origcolumn, 34) 
+         else origcolumn 
+     end )
+  persisted
+  
+=========================
+CREATE FUNCTION dbo.TrimLongerThan50(@Input NVARCHAR(500))
+RETURNS NVARCHAR(50)
+AS BEGIN
+    DECLARE @Result NVARCHAR(50)
+    SET @Result = @Input
+
+    IF LEN(@Input) > 50
+        SET @Result = N'[SQL-Truncated] ' + SUBSTRING(@input, 1, 34)
+
+    RETURN @result
+END
+
+
+
+ALTER TABLE dbo.YourTable
+   ADD NewComputedColumn AS dbo.TrimLongerThan50(YourInputColumn)
+
+
+================================
+
+alter table dbo.Policies add policyid_numeric 
+  as ( case when len(policyid) > 13 
+         then cast(left(policyid, 13) as numeric) 
+         else 0 
+     end )
+  persisted

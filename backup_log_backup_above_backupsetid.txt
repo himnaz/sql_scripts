@@ -1,0 +1,14 @@
+SELECT    CONVERT(VARCHAR(30),BS.database_name)                DB,
+          BS.backup_set_id                                     SET_ID,
+          BS.backup_start_date                                 START_DATE,
+          BS.backup_finish_date                                END_DATE,
+          STR(ROUND(BS.backup_size/1048576,0),10)              SIZE_MB,
+          BS.type                                              TYPE,
+          CONVERT(VARCHAR(150),BMF.physical_device_name)       PHYS_NAME
+FROM      msdb..backupset                                      BS
+LEFT JOIN msdb..backupmediafamily                              BMF
+ON        BS.media_set_id                                      = BMF.media_set_id
+WHERE     BS.type                                             IN ('L')
+AND       BS.database_name IN ('wfmP')
+AND       BS.backup_set_id > 166548
+ORDER BY  1,2

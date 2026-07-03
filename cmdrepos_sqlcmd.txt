@@ -1,0 +1,6 @@
+sqlcmd -S SQLANAPVWSK00\INST80 -q "select @@version"
+sqlcmd -S <servername>\<instancename> -i <top5sql_historical.sql>
+
+sqlcmd -E <servername>\<instancename> -e -i test.sql -o test.log
+
+C:\Users\A0224512>sqlcmd -E -S SQLSWFTPCB05\INST80 -e -i c:\temp\testServer.sql -o c:\temp\himaz_out.txt

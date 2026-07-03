@@ -1,0 +1,11 @@
+USE(REPLACE_WITH_DATABASE_NAME)
+
+SELECT OBJECT_NAME(OBJECT_ID), index_id,index_type_desc,index_level,
+avg_fragmentation_in_percent,avg_page_space_used_in_percent,page_count
+FROM sys.dm_db_index_physical_stats
+(DB_ID(N'REPLACE_WITH_DATABASE_NAME'), NULL, NULL, NULL , 'SAMPLED')
+ORDER BY avg_fragmentation_in_percent DESC
+
+
+---Ola Hellegran script to index defragmentation
+---exec [dbo].[IndexOptimize] @Databases = 'USER_DATABASES',@FragmentationHigh = 'INDEX_REBUILD_OFFLINE,INDEX_REORGANIZE',@FragmentationMedium = 'INDEX_REBUILD_OFFLINE,INDEX_REORGANIZE',@FragmentationLevel1=10,@FragmentationLow = 'INDEX_REORGANIZE',@TimeLimit = 12600, @PageCountLevel = 100,@UpdateStatistics= 'INDEX'

@@ -1,0 +1,85 @@
+Imports DTS
+Imports System
+Imports System.Data.SqlClient
+
+
+
+Module Module1
+Dim Opkg As DTS.Package = New DTS.Package()
+Dim PkgName As String
+Dim ServerName As String
+Dim ConnectionString As String
+Dim Con As Connections
+Dim NumOfCon As Integer
+Dim Str As String = ""
+Dim myConnection As SqlConnection
+Dim myCommand1 As SqlCommand
+Dim myCommand2 As SqlCommand
+
+Dim dr As SqlDataReader
+
+
+
+
+
+
+Sub Main()
+
+'Establish ODBC connections with SQL Server Instance
+myConnection = New SqlConnection("Server = MISQLD01; uid = username; pwd = password; database =msdb")
+
+Try
+'Opening the connection
+myConnection.Open()
+
+'Executing the command and assigning it to my connection
+myCommand1 = New SqlCommand("SELECT name FROM sysdtspackages", myConnection)
+'myCommand2 = New SqlCommand("SELECT COUNT(*) FROM sysdtspackages", myConnection)
+
+'Read from the datareader
+dr = myCommand1.ExecuteReader()
+While dr.Read()
+'MsgBox(dr(0).ToString())
+
+If (dr(0).ToString()).Equals("PACKAGENAME") Then
+MsgBox(dr(0).ToString())
+
+
+'Load DTS package from SQL Server 
+Opkg.LoadFromSQLServer("MISQLD01", "username", "password", DTS.DTSSQLServerStorageFlags.DTSSQLStgFlag_Default, "", "", "", dr(0).ToString())
+
+' Get the loaded DTS package name
+PkgName = Opkg.Name()
+
+'Get the number of connections within the loaded DTS package 
+
+
+'Get the connection string of each connections of the DTS package 
+For NumOfCon = 1 To Opkg.Connections.Count
+If (Opkg.Connections.Item(NumOfCon).DataSource = "OLDSERVERNAME") Then
+Opkg.Connections.Item(NumOfCon).DataSource = "NEWSERVERNAME"
+End If
+'MsgBox(Opkg.Connections.Item(NumOfCon).DataSource)
+Next
+'MsgBox(Opkg.Connections.Item(NumOfCon).DataSource)
+'Opkg.Connections.Item(1).DataSource = "NEWSERVERNAME"
+'MsgBox(Opkg.Connections.Item(1).DataSource)
+Opkg.SaveToSQLServer("MISQLP01", "username", "password", DTS.DTSSQLServerStorageFlags.DTSSQLStgFlag_Default, "", "", "", dr(0).ToString())
+
+End If
+End While
+dr.Close()
+myConnection.Close()
+
+Catch ex As Exception
+
+End Try
+
+End Sub
+
+
+
+
+
+End Module
+

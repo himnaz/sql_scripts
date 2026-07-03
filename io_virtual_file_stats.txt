@@ -1,0 +1,26 @@
+select * from 
+(
+SELECT 
+cast(DB_Name(a.database_id) as varchar) as Database_name
+,b.physical_name
+,a.file_id
+,a.sample_ms
+,a.num_of_reads
+,a.num_of_bytes_read
+,a.io_stall_read_ms
+,a.num_of_writes
+,a.num_of_bytes_written
+,a.io_stall_write_ms
+,a.io_stall
+,a.size_on_disk_bytes
+,b.name logical_file_name
+--,b.physical_name
+,b.size
+,b.state_desc
+,b.type_desc
+FROM  
+sys.dm_io_virtual_file_stats(null, null) a 
+INNER JOIN sys.master_files b ON a.database_id = b.database_id and a.file_id = b.file_id
+) z
+where z.database_name = 'CardsP'
+order by z.io_stall desc

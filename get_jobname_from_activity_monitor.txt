@@ -1,0 +1,24 @@
+declare @spid int
+
+select @spid = 70
+
+declare @jobid_derived varchar(32)
+declare @spid_var int
+
+select @jobid_derived = substring((cast(program_name as varchar(75))),32,32)
+from master.sys.sysprocesses
+where spid = @spid
+
+select @spid,
+name
+from msdb.dbo.sysjobs sj
+where substring((cast(sj.job_id as varchar(36))),7,2) +
+substring((cast(sj.job_id as varchar(36))),5,2) +
+substring((cast(sj.job_id as varchar(36))),3,2) +
+substring((cast(sj.job_id as varchar(36))),1,2) +
+substring((cast(sj.job_id as varchar(36))),12,2) +
+substring((cast(sj.job_id as varchar(36))),10,2) +
+substring((cast(sj.job_id as varchar(36))),17,2) +
+substring((cast(sj.job_id as varchar(36))),15,2) +
+substring((cast(sj.job_id as varchar(36))),20,4) +
+substring((cast(sj.job_id as varchar(36))),25,12) = @jobid_derived
