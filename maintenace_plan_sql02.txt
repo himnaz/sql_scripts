@@ -1,0 +1,76 @@
+----------------------------------------------------------------------------Backup Database Task-------------------
+
+EXECUTE master.dbo.xp_create_subdir N'G:\Data\BackUps\master'
+GO
+EXECUTE master.dbo.xp_create_subdir N'G:\Data\BackUps\Target_Hydrogen'
+GO
+EXECUTE master.dbo.xp_create_subdir N'G:\Data\BackUps\Target_Partners'
+GO
+EXECUTE master.dbo.xp_create_subdir N'G:\Data\BackUps\Target_PRO'
+GO
+BACKUP DATABASE [master] TO  DISK = N'G:\Data\BackUps\master\master_backup_201008021301.bak' WITH NOFORMAT, NOINIT,  NAME = N'master_backup_20100802130121', SKIP, REWIND, NOUNLOAD,  STATS = 10
+GO
+declare @backupSetId as int
+select @backupSetId = position from msdb..backupset where database_name=N'master' and backup_set_id=(select max(backup_set_id) from msdb..backupset where database_name=N'master' )
+if @backupSetId is null begin raiserror(N'Verify failed. Backup information for database ''master'' not found.', 16, 1) end
+RESTORE VERIFYONLY FROM  DISK = N'G:\Data\BackUps\master\master_backup_201008021301.bak' WITH  FILE = @backupSetId,  NOUNLOAD,  NOREWIND
+GO
+BACKUP DATABASE [Target_Hydrogen] TO  DISK = N'G:\Data\BackUps\Target_Hydrogen\Target_Hydrogen_backup_201008021301.bak' WITH NOFORMAT, NOINIT,  NAME = N'Target_Hydrogen_backup_20100802130121', SKIP, REWIND, NOUNLOAD,  STATS = 10
+GO
+declare @backupSetId as int
+select @backupSetId = position from msdb..backupset where database_name=N'Target_Hydrogen' and backup_set_id=(select max(backup_set_id) from msdb..backupset where database_name=N'Target_Hydrogen' )
+if @backupSetId is null begin raiserror(N'Verify failed. Backup information for database ''Target_Hydrogen'' not found.', 16, 1) end
+RESTORE VERIFYONLY FROM  DISK = N'G:\Data\BackUps\Target_Hydrogen\Target_Hydrogen_backup_201008021301.bak' WITH  FILE = @backupSetId,  NOUNLOAD,  NOREWIND
+GO
+BACKUP DATABASE [Target_Partners] TO  DISK = N'G:\Data\BackUps\Target_Partners\Target_Partners_backup_201008021301.bak' WITH NOFORMAT, NOINIT,  NAME = N'Target_Partners_backup_20100802130121', SKIP, REWIND, NOUNLOAD,  STATS = 10
+GO
+declare @backupSetId as int
+select @backupSetId = position from msdb..backupset where database_name=N'Target_Partners' and backup_set_id=(select max(backup_set_id) from msdb..backupset where database_name=N'Target_Partners' )
+if @backupSetId is null begin raiserror(N'Verify failed. Backup information for database ''Target_Partners'' not found.', 16, 1) end
+RESTORE VERIFYONLY FROM  DISK = N'G:\Data\BackUps\Target_Partners\Target_Partners_backup_201008021301.bak' WITH  FILE = @backupSetId,  NOUNLOAD,  NOREWIND
+GO
+BACKUP DATABASE [Target_PRO] TO  DISK = N'G:\Data\BackUps\Target_PRO\Target_PRO_backup_201008021301.bak' WITH NOFORMAT, NOINIT,  NAME = N'Target_PRO_backup_20100802130121', SKIP, REWIND, NOUNLOAD,  STATS = 10
+GO
+declare @backupSetId as int
+select @backupSetId = position from msdb..backupset where database_name=N'Target_PRO' and backup_set_id=(select max(backup_set_id) from msdb..backupset where database_name=N'Target_PRO' )
+if @backupSetId is null begin raiserror(N'Verify failed. Backup information for database ''Target_PRO'' not found.', 16, 1) end
+RESTORE VERIFYONLY FROM  DISK = N'G:\Data\BackUps\Target_PRO\Target_PRO_backup_201008021301.bak' WITH  FILE = @backupSetId,  NOUNLOAD,  NOREWIND
+
+
+----------------------------------------------End Backup Database Task------------------------------------------------------------
+
+---------------------------------------------Begin Check database integrity-------------------------------------------------------
+
+USE [master]
+GO
+DBCC CHECKDB WITH NO_INFOMSGS
+GO
+USE [Target_Hydrogen]
+GO
+DBCC CHECKDB WITH NO_INFOMSGS
+GO
+USE [Target_Partners]
+GO
+DBCC CHECKDB WITH NO_INFOMSGS
+GO
+USE [Target_PRO]
+GO
+DBCC CHECKDB WITH NO_INFOMSGS
+
+--------------------------------------------End Check database integrity-------------------------------------------------------------
+
+------------------------------------------begin Maintenance Cleanup task1--------------------------------------------------------
+
+EXECUTE master.dbo.xp_delete_file 0,N'G:\Data\BackUps\Target_Partners',N'bak',N'07/30/2010 13:05:47'
+
+
+---------------------------------------------end Maintenance Cleanup task1--------------------------------------------------------
+
+---------------------------------------------Begin History Cleanup task---------------------------------------------------------------
+
+declare @dt datetime select @dt = cast(N'07/30/2010 13:09:02' as datetime) exec msdb.dbo.sp_delete_backuphistory @dt
+GO
+EXEC msdb.dbo.sp_purge_jobhistory  @oldest_date='07/30/2010 13:09:02'
+GO
+EXECUTE msdb..sp_maintplan_delete_log null,null,'07/30/2010 13:09:02'
+---------------------------------------------end History Cleanup task---------------------------------------------------------------

@@ -1,0 +1,53 @@
+Create user PRBUK\SVC_MMRAFIUAT on database SQLMULIVWSK14\INST80.
+
+This user will be used by the applications SRPMiddleware, CRAProxy and CRAProxyHelper for database connectivity.
+
+The following permissions required are :
+
+* Access to databases SRPCache, ProxyCache and ProxyCacheArchive 
+* Execute permission on all stored procedures in SRPCache, ProxyCache and ProxyCacheArchive 
+* SELECT, INSERT, UPDATE, DELETE on all tables in ProxyCache and ProxyCacheArchive 
+
+This is part of MMR & AIV projects. 
+
+Risk AIV - RFC 1028725 / TR 108493 
+Risk MMR - RFC 1028724 / TR 108492
+
+In case of any queries please get in touch with Anand Mukunthan 07588352292/01908 347015
+
+--------------------------------------------------------------------------
+
+
+
+USE [master]
+GO
+CREATE LOGIN [PRBUK\SVC_MMRAFIUAT] FROM WINDOWS WITH DEFAULT_DATABASE=[ProxyCache]
+GO
+USE [ProxyCache]
+GO
+CREATE USER [PRBUK\SVC_MMRAFIUAT] FOR LOGIN [PRBUK\SVC_MMRAFIUAT]
+GO
+USE [ProxyCache]
+GO
+grant select,insert,update,delete,execute on schema::dbo to [PRBUK\SVC_MMRAFIUAT]
+go
+
+USE [ProxyCacheArchive]
+GO
+CREATE USER [PRBUK\SVC_MMRAFIUAT] FOR LOGIN [PRBUK\SVC_MMRAFIUAT]
+GO
+USE [ProxyCacheArchive]
+GO
+
+grant select,insert,update,delete,execute on schema::dbo to [PRBUK\SVC_MMRAFIUAT]
+go
+
+USE [SRPCacheU]
+GO
+CREATE USER [PRBUK\SVC_MMRAFIUAT] FOR LOGIN [PRBUK\SVC_MMRAFIUAT]
+GO
+USE [SRPCacheU]
+GO
+
+grant execute on schema::dbo to [PRBUK\SVC_MMRAFIUAT]
+go

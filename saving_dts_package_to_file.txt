@@ -1,0 +1,14 @@
+DECLARE @TARGETDIR varchar(1000)
+SET 	@TARGETDIR = 'C:\temp\partners_dts\'
+
+SELECT	distinct  
+	'DTSRUN.EXE /S '
+	+ CONVERT(varchar(200), SERVERPROPERTY('servername')) 
+	+ ' /E ' 
+	+ ' /N '
+	+ '"' + name  + '"'
+	+ ' /F '
+	+ '"' + @TARGETDIR + name + '.dts"'
+	+ ' /!X'
+FROM	msdb.dbo.sysdtspackages P
+

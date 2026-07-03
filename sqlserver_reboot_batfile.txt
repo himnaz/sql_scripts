@@ -1,0 +1,22 @@
+net stop mssqlserver
+net start mssqlserver
+
+
+
+@ECHO OFF
+NET STOP SQLSERVERAGENT
+NET STOP MSSQLSERVER
+NET START MSSQLSERVER
+NET START SQLSERVERAGENT
+
+
+net stop “SQL Server Agent (prod2005)”
+net stop “SQL Server (prod2005)”
+
+
+----- bat file script----
+
+net stop "SQL Server Agent (MSSQLSERVER)"
+net stop "SQL Server (MSSQLSERVER)" && net start "SQL Server (MSSQLSERVER)"
+net start "SQL Server Agent (MSSQLSERVER)"
+

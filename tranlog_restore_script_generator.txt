@@ -1,0 +1,92 @@
+set nocount on
+go
+
+declare @p_source_dbname sysname
+declare @p_dest_dbname sysname
+declare @p_backup_set_id int
+declare @p_destination_dir varchar(256)
+
+-- set @p_source_dbname to the database you are restoring 
+set @p_source_dbname = 'wfmP'
+
+-- set @p_dest_dbname to the database you are restoring to 
+set @p_dest_dbname = 'wfmP'
+
+--
+-- log backups recovered after @p_backup_set_id
+-- 
+set @p_backup_set_id = 167167
+--
+-- set destination directory to the directory you will be restoring from
+--
+set @p_destination_dir='I:\TRNLOGS\wfmP'
+--
+---------------------------------------------------------------------------
+
+declare @backup_set_id int
+declare @physical_device_name nvarchar(520)
+declare @rc int
+declare @filename nvarchar(520)
+declare @pos int
+
+
+declare @str varchar(512)
+
+declare bu_cursor cursor
+for
+select backup_set_id, physical_device_name from msdb..backupset bs
+left join msdb..backupmediafamily bmf
+on bmf.media_set_id = bs.media_set_id
+where type = 'L'
+and database_name = @p_source_dbname
+and bs.backup_set_id > @p_backup_set_id
+order by backup_set_id 
+
+open bu_cursor
+
+fetch bu_cursor
+into  @backup_set_id,
+      @physical_device_name
+     
+set @rc=0
+
+while (@@fetch_status = 0)
+begin
+
+      if (charindex('\', @physical_device_name) = 0)
+      begin 
+            print 'ERROR: UNABLE TO RESTORE FROM ' + @physical_device_name
+            close bu_cursor
+            deallocate bu_cursor
+            return
+      end
+      
+      set @str='-- BACKUP SET ID : ' + CONVERT(VARCHAR(12), @backup_set_id)
+      print @str  
+      set @str='RESTORE LOG [' + @p_dest_dbname + '] FROM DISK = ''' +  @p_destination_dir + '\' + RIGHT(@physical_device_name,CHARINDEX('\',REVERSE(@physical_device_name))-1) + '''' + ' WITH NORECOVERY'
+      print @str
+      set @rc=@rc+1
+      
+      fetch bu_cursor
+      into  @backup_set_id,
+            @physical_device_name
+
+end
+
+close bu_cursor
+deallocate bu_cursor
+
+
+if (@rc > 0)
+begin
+      print '------------------------------------------------'
+      print '-- LAST BACKUP SET ID = '  + CONVERT(VARCHAR(12), @backup_set_id)
+      print '------------------------------------------------'
+end
+else
+begin
+      print '--------------------------------------------'
+      print '-- NO LOGS TO RECOVER '
+      print '--------------------------------------------'
+end
+GO
