@@ -22,3 +22,18 @@ SELECT *
 
 sp_depends 'dbo.mstt_Agents'
  GO
+
+
+--https://stackoverflow.com/questions/119679/list-of-stored-procedure-from-table/121329#121329
+
+select
+  so.name,
+  sc.text
+from
+  sysobjects so inner join syscomments sc on so.id = sc.id
+where
+  sc.text like '%INSERT INTO xyz%'
+  or sc.text like '%UPDATE xyz%'
+
+
+--https://stackoverflow.com/questions/1850045/how-do-i-find-all-stored-procedures-that-insert-update-or-delete-records
